@@ -3,7 +3,8 @@ A KNXD client for Common Lisp using CFFI and the KNXD C library
 
 ### Prerequisites
 A [knxd](https://github.com/knxd/knxd) server with the knxd c library
-Compile KNXD with shared libries  `./configure --enable-shared` and ensure that libeibclient is available on under the `LD_LIBRARY_PATH` (found in the KNXD build directory under `knxd/src/client/c/.libs/libeibclient.so`)
+
+Compile KNXD with shared libraries  `./configure --enable-shared` and ensure that libeibclient is available on under the `LD_LIBRARY_PATH` (found in the KNXD build directory under `knxd/src/client/c/.libs/libeibclient.so`)
 
 ##### knx-send
 Sends a message on the KNX bus: `(knx-send url group message)`
@@ -21,35 +22,32 @@ Request a KNX group's value: `(knx-read url group [age])`
 ##### knx-listen
 Listen for any telegram from the KNX bus: `(knx-listen url)`
 * `url` is a url string to a knxd service e.g. `"ip:192.168.1.15:1234"`
-* Returns the first received telegram as a list in the of `(data type group source)`
-    * `data` is the telegram payload which can be decoded with the `msg-decode` function
-	* `type` is the telegram type: `request`, `response` or `write`
-    * `group` is a list containing the destination group
-    * `source` is a list containing the address of the source device
+* Returns multiple values:
+    1. The telegram payload which can be decoded with the `msg-decode` function
+    2. The telegram type: `request`, `response` or `write`
+    3. A list containing the destination group
+    4. A list containing the address of the source device
 
 ##### msg-encode
 Converts a value into a knx telegram payload: `(msg-encode value type)`
 * `value` is the value to encode
-* `type` specifies the knx dpt type for the value
-    * `dpt-1.*` is either `t` or `nil`
-    * `dpt-5.001` is a percentage value between 0 and 100
-    * `dpt-17.001` is a scene value between 1 and 50
-    * `dpt-9.*` is a 16bit float
-    * `dpt-14.*` is a 32bit float
-	* `dpt-13.*` is a 32bit signed integer
+* `type` is a symbol specifying the knx dpt type for the value
 *  Returns a payload list which can be sent using `knx-send`
 
 ##### msg-decode
 Convert received telegram payload into a lisp value: `(msg-decode message type)`
 * `message` is a received payload list
-* `type` specifies the knx dpt type of the value
-    * `dpt-1.*` is either `t` or `nil`
-    * `dpt-5.001` is a percentage value between 0 and 100
-    * `dpt-17.001` is a scene value between 1 and 50
-    * `dpt-9.*` is a 16bit float
-    * `dpt-14.*` is a 32bit float
-	* `dpt-13.*` is a 32bit signed integer
+* `type` is a symbol specifying the knx dpt type of the value
 *  Returns a lisp value
+
+
+##### Message Types
+* `dpt-1.*` is for a boolean value, either `t` or `nil`
+* `dpt-5.001` is for a percentage value between 0 and 100
+* `dpt-17.001` is for a scene value between 1 and 50
+* `dpt-9.*` is for a 16bit floating point number
+* `dpt-14.*` is for a 32bit floating point number
+* `dpt-13.*` is fora 32bit signed integer
 
 ### Notes
 * Currently only supports using 3 level group addresses and 3 level device addresses
